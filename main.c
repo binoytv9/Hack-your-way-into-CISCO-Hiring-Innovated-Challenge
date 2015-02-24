@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdbool.h>
 #include <string.h>
 
 #define MAXPAIR     1000 // maximum no of country-city pair
@@ -26,9 +27,11 @@ struct pathItem{
     struct pathItem *next;
 };
 
+void solutionA(struct path *head, char *toVisit[]);
 int hash(char *s);
 void readVisitedTxt(void);
 char ***extract(char *path);
+void readWantToVisitTxt(void);
 void print(struct path *head);
 void readRestrictedCitiesTxt(void);
 void readRestrictedCountriesTxt(void);
@@ -37,8 +40,11 @@ struct countryCityName *newNode(char **pair);
 void createPathList(char *line, struct path **pathListRef);
 void insert(struct pathItem **headRef, struct countryCityName *item);
 
+char *wantToVisit[MAXPAIR];
 struct countryCityName *countryCityArray[MAXPAIR];
 int visitedCities[MAXPAIR], restrictedCities[MAXPAIR], restrictedCountries[MAXPAIR];
+
+int setVisitedAll;
 
 int main(void)
 {
@@ -49,6 +55,8 @@ int main(void)
     readVisitedTxt();
     readRestrictedCitiesTxt();
     readRestrictedCountriesTxt();
+
+    readWantToVisitTxt();
     
     dFile = fopen("Dependent.txt", "r");
     while(fgets(line, MAXLINELEN, dFile) != NULL){
@@ -56,8 +64,29 @@ int main(void)
         createPathList(line, &pathList);
     }
 
-    print(pathList);
+    //print(pathList);
+
+    solutionA(pathList, wantToVisit);
 }
+
+void solutionA(struct path *head, char *toVisit[])
+{
+    int i;
+    struct path *current;
+
+    for(i = 0; toVisit[i] != NULL; ++i){
+        current = head;
+        while(current != NULL){
+            if(strcmp(toVisit[i], current->pathHead->item->name) == 0){
+               printPath(current->pathHead);
+               printf("\n");
+            }
+            current = current->next;
+        }
+        printf("\n");
+    }
+}
+
 
 void createPathList(char *line, struct path **pathListRef)
 {
@@ -154,15 +183,29 @@ struct countryCityName *newNode(char **pair)
     new->city       = pair[2];
 
     if (visitedCities[hash(pair[0])])
-        new->isVisited = 1;
+        new->isVisited = true;
 
     if (restrictedCountries[hash(pair[1])])
-        new->isRestrictedCountry = 1;
+        new->isRestrictedCountry = true;
 
     if (restrictedCities[hash(pair[0])])
-        new->isRestrictedCity = 1;
+        new->isRestrictedCity = true;
 
     return new;
+}
+
+void readWantToVisitTxt(void)
+{
+    int i;
+    char buf[MAXNAMELEN];
+    FILE *fp = fopen("WantToVisit.txt", "r");
+
+    i = 0;
+    while (fgets(buf, MAXNAMELEN, fp) != NULL) {
+            buf[strlen(buf)-1] = '\0';
+            wantToVisit[i++] = strdup(buf);
+    }
+    wantToVisit[i] = NULL;
 }
 
 void readVisitedTxt(void)
@@ -172,7 +215,7 @@ void readVisitedTxt(void)
 
     while (fgets(buf, MAXNAMELEN, fp) != NULL) {
             buf[strlen(buf)-1] = '\0';
-            visitedCities[hash(buf)] = 1;
+            visitedCities[hash(buf)] = true;
     }
 }
 
@@ -183,7 +226,7 @@ void readRestrictedCitiesTxt(void)
 
     while (fgets(buf, MAXNAMELEN, fp) != NULL) {
             buf[strlen(buf)-1] = '\0';
-            restrictedCities[hash(buf)] = 1;
+            restrictedCities[hash(buf)] = true;
     }
 }
 
@@ -194,7 +237,7 @@ void readRestrictedCountriesTxt(void)
 
     while (fgets(buf, MAXNAMELEN, fp) != NULL) {
             buf[strlen(buf)-1] = '\0';
-            restrictedCountries[hash(buf)] = 1;
+            restrictedCountries[hash(buf)] = true;
     }
 }
 
@@ -220,7 +263,8 @@ void print(struct path *head)
 void printPath(struct pathItem *head)
 {
     if(head != NULL){
-        printf("[%d, %d, %d]\t%s %s %s\n", head->item->isVisited, head->item->isRestrictedCountry, head->item->isRestrictedCity, head->item->name, head->item->country, head->item->city);
+        printf("%s ", head->item->name);
+        //printf("[%d, %d, %d]\t%s %s %s\n", head->item->isVisited, head->item->isRestrictedCountry, head->item->isRestrictedCity, head->item->name, head->item->country, head->item->city);
         printPath(head->next);
     }
 }
