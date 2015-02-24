@@ -1,0 +1,6 @@
+Brazil:Manus/India:Mumbai/India:Nagapur/India:Shimla/Japan:Tokyo
+India:Mumbai/Brazil:Guarulhos/USA:California
+Brazil:Manus/India:Delhi/China:Shanghai/Japan:Tokyo
+Brazil:Manus/India:Mumbai/India:Nagpur/India:Shimla
+India:Bangalore/India:Bhopal/India:Pune/India:Nagpur/India:Ooty
+India:Lucknow/USA:Newark/India:Ooty
